@@ -1,4 +1,4 @@
-import random
+import random, json
 from locust import SequentialTaskSet, HttpUser, between, task, tag
 
 
@@ -25,7 +25,8 @@ class TaskSuit(SequentialTaskSet):
         # 使用self.client发起请求，请求的方法根据接口实际选,
         # catch_response 值为True 允许为失败 ，
         # name 设置任务标签名称   -----可选参数
-        with self.client.post(url, json=data, headers=self.headers, catch_response=True, name="case_1_register") as rsp:
+        with self.client.post(url, data=json.dumps(data), headers=self.headers, catch_response=True,
+                              name="case_1_register") as rsp:
             if rsp.status_code > 400:
                 print(rsp.text)
                 rsp.failure('regist_ 接口失败！')
@@ -34,7 +35,8 @@ class TaskSuit(SequentialTaskSet):
     def login_case(self):
         url = '/erp/loginIn'  # 接口请求的URL地址
         data = {"name": self.username, "pwd": self.pwd}
-        with self.client.post(url, json=data, headers=self.headers, catch_response=True, name="case_2_login") as rsp:
+        with self.client.post(url, data=json.dumps(data), headers=self.headers, catch_response=True,
+                              name="case_2_login") as rsp:
             # 提取响应json 中的信息，定义为 类变量
             self.token = rsp.json()['token']
             if rsp.status_code < 400 and rsp.json()['code'] == "200":
